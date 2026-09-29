@@ -1,6 +1,6 @@
-# 🎯 Threat Hunting: LSASS Credential Dumping via Task Manager
+#  Threat Hunting: LSASS Credential Dumping via Task Manager
 
-## 📖 Scenario Overview
+##  Scenario Overview
 Adversaries often attempt to extract credentials from the Local Security Authority Subsystem Service (LSASS) memory to conduct lateral movement. In this lab, I simulated a local execution attack where an adversary uses the native Windows Task Manager (`taskmgr.exe`) to dump the `lsass.exe` process memory to disk, intentionally bypassing basic security controls to test detection capabilities.
 
 * **MITRE ATT&CK Tactic:** Credential Access (TA0006)
@@ -8,7 +8,7 @@ Adversaries often attempt to extract credentials from the Local Security Authori
 
 ---
 
-## 🛠️ Lab Environment & Setup
+##  Lab Environment & Setup
 To properly detect this malicious activity, I configured a dedicated virtual environment with enhanced telemetry.
 
 * **Hypervisor:** Oracle VirtualBox
@@ -29,7 +29,7 @@ To properly detect this malicious activity, I configured a dedicated virtual env
 
 ---
 
-## ⚔️ Attack Simulation
+##  Attack Simulation
 With the telemetry in place and Windows Defender Real-time Protection temporarily disabled, the simulation was executed:
 1. Launched Task Manager (`taskmgr.exe`) and navigated to the **Details** tab.
 2. Located the highly privileged `lsass.exe` process.
@@ -45,7 +45,7 @@ With the telemetry in place and Windows Defender Real-time Protection temporaril
 
 ---
 
-## 🔍 Investigation & Threat Hunting
+##  Investigation & Threat Hunting
 Initially, one might look for Event ID 10 (Process Access). However, robust configurations often tune out `taskmgr.exe` accessing processes to reduce SIEM noise. Recognizing this visibility gap, I pivoted my hunt to focus on artifact creation on the disk.
 
 By filtering Sysmon logs for **Event ID 11 (File Create)**, I successfully identified the exact moment the payload was dropped.
@@ -60,7 +60,7 @@ By filtering Sysmon logs for **Event ID 11 (File Create)**, I successfully ident
 <img width="796" height="472" alt="9" src="https://github.com/user-attachments/assets/f6ebaf57-cac3-4fff-a747-81566e6254cc" />
 
 
-**🎯 The Golden Artifact (IoC):**
+**The Golden Artifact (IoC):**
 
 <img width="625" height="597" alt="10" src="https://github.com/user-attachments/assets/13ba6a7c-a372-4990-b987-b2c34375d799" />
 
@@ -72,7 +72,7 @@ By filtering Sysmon logs for **Event ID 11 (File Create)**, I successfully ident
 
 ---
 
-## 🛡️ Detection Rule (Kusto Query Language - KQL)
+##  Detection Rule (Kusto Query Language - KQL)
 To automate the detection of this specific evasion technique in a SOC environment, I developed the following detection logic. This query alerts when Task Manager creates a dump file associated with LSASS.
 
 ```kusto
