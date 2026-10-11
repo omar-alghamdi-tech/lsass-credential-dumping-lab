@@ -1,0 +1,27 @@
+title: LSASS Memory Dump Created by Task Manager
+id: 58fcdf7c-8fba-4f83-bba3-3607e0c30992
+status: experimental
+description: |
+  Detects Task Manager (taskmgr.exe) writing a memory dump file of the LSASS process to disk.
+  Adversaries with local admin rights can use the built-in "Create dump file" option to
+  dump LSASS memory and later extract credentials offline (e.g. with Mimikatz or pypykatz).
+references:
+  - https://attack.mitre.org/techniques/T1003/001/
+  - https://github.com/omar-alghamdi-tech/lsass-credential-dumping-lab
+author: Omar Alghamdi
+date: 2026-10-12
+tags:
+  - attack.credential-access
+  - attack.t1003.001
+logsource:
+  product: windows
+  category: file_event   # Sysmon Event ID 11 (FileCreate)
+detection:
+  selection:
+    Image|endswith: '\taskmgr.exe'
+    TargetFilename|contains: 'lsass'
+    TargetFilename|endswith: '.dmp'
+  condition: selection
+falsepositives:
+  - Administrators intentionally creating an LSASS dump for troubleshooting (rare, should be documented and approved)
+level: high
